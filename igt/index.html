@@ -226,7 +226,7 @@ function sleep(ms){ return new Promise(res=>setTimeout(res, ms)); }
 function createDeckElements(){
   decksDiv.innerHTML = "";
   // image filenames: deckA.jpg, deckB.jpg, deckC.jpg, deckD.jpg (you can replace with jpg)
-const filenames = ["igt/img/deckA.jpg","igt/img/deckB.jpg","igt/img/deckC.jpg","igt/img/deckD.jpg"];
+const filenames = ["img/deckA.jpg","img/deckB.jpg","img/deckC.jpg","img/deckD.jpg"];
   for(let d=0; d<nDeck; d++){
     const wrapper = document.createElement("div");
     wrapper.style.display="flex";
@@ -417,4 +417,5 @@ createDeckElements();
 </script>
 </body>
 </html>
+
 
