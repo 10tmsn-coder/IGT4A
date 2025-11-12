@@ -304,8 +304,14 @@ function startExperiment(){
   forceDownloadBtn.style.display = "none";
 }
 
-async function deckClicked(jDeck){
-  if(iTrial >= nTrial) return;
+let deckClickable = true; // ← ⭐ これをグローバル変数として追加（関数の外に書く）
+
+async function deckClicked(jDeck) {
+  if (!deckClickable) return; // ← ⭐ フィードバック中なら無視
+  if (iTrial >= nTrial) return;
+
+  deckClickable = false; // ← ⭐ フィードバック開始前にクリック無効化
+
   rtStart = performance.now();
   promptBox.textContent = "あなたが選んだデッキ： " + DeckName[jDeck] + " ";
   await sleep(SelDelay);
@@ -316,14 +322,15 @@ async function deckClicked(jDeck){
   let iReward = Win[jDeck];
   let iPenalty = Lose[jDeck][deckPos[jDeck]];
   let cardColor = "black";
-  if(iPenalty === -1){
+  if (iPenalty === -1) {
     iPenalty = 0;
     cardColor = "red";
   }
+
   const iNet = iReward - iPenalty;
   iTotal += iNet;
   GCash = iTotal + (MoreBorrow * BorrowInit);
-  if(GCash < 0){
+  if (GCash < 0) {
     Borrow += BorrowInit;
     MoreBorrow += 1;
     GCash += BorrowInit;
@@ -343,27 +350,31 @@ async function deckClicked(jDeck){
   iTrial += 1;
 
   // show reward feedback
-  feedbackDiv.innerHTML = `<div style="color:var(--green);font-weight:600">${(iReward*100).toLocaleString()}円を獲得しました。</div>`;
+  feedbackDiv.innerHTML = `<div style="color:var(--green);font-weight:600">${(iReward * 100).toLocaleString()}円を獲得しました。</div>`;
   faceContainer.innerHTML = happyFaceSVG;
-  try{ playTone(880,0.12); }catch(e){}
+  try { playTone(880, 0.12); } catch (e) {}
   updateBars();
   await sleep(RewardDelay + InterMess);
 
   // penalty feedback if exists
-  if(iPenalty !== 0){
-    feedbackDiv.innerHTML = `<div style="color:var(--red);font-weight:600">しかし，また ${(iPenalty*100).toLocaleString()}円を失いました。</div>`;
+  if (iPenalty !== 0) {
+    feedbackDiv.innerHTML = `<div style="color:var(--red);font-weight:600">しかし，また ${(iPenalty * 100).toLocaleString()}円を失いました。</div>`;
     faceContainer.innerHTML = sadFaceSVG;
-    try{ playTone(220,0.18); }catch(e){}
+    try { playTone(220, 0.18); } catch (e) {}
     updateBars();
     await sleep(PenaltyDelay);
   }
 
+  // reset feedback
   feedbackDiv.innerHTML = "";
   faceContainer.innerHTML = "";
   await sleep(TrialDelay);
 
-  if(iTrial >= nTrial) endExperiment();
+  if (iTrial >= nTrial) endExperiment();
+
+  deckClickable = true; // ← ⭐ フィードバックが終わったら再びクリック可能に
 }
+
 
 // ---------- End & CSV ----------
 function endExperiment(){
@@ -418,4 +429,5 @@ createDeckElements();
 </script>
 </body>
 </html>
+
 
